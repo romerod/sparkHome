@@ -1,3 +1,6 @@
+#include "application.h"
+#include "winecooler.h"
+
 #define up D1
 #define down D0
 #define interruptUp A0
@@ -5,30 +8,25 @@
 #define maxTemperatur 18
 #define minTemperatur 11
 
-int currentTemperature;
-int newTemperature;
-unsigned long lastPress;
+winecooler* winecooler::instance;
 
-int pressUp(String command);
-int pressDown(String command);
-int setTemperature(String command);
-
-void setup() {
+void winecooler::setup() {
+    instance = this;
     currentTemperature = 16;
     newTemperature = 16;
     Spark.variable("currentTemperature", &currentTemperature, INT);
-    Spark.function("pressUp", pressUp);
-    Spark.function("pressDown", pressDown);
-    Spark.function("setTemp", setTemperature);
+    Spark.function("pressUp", winecooler::pressUp);
+    Spark.function("pressDown", winecooler::pressDown);
+    Spark.function("setTemp", winecooler::setTemperature);
 
     pinMode(up, OUTPUT);
     pinMode(down, OUTPUT);
 
-    attachInterrupt(interruptUp, upPressed, RISING);
-    attachInterrupt(interruptDown, downPressed, RISING);
+    attachInterrupt(interruptUp, winecooler::upPressed, RISING);
+    attachInterrupt(interruptDown, winecooler::downPressed, RISING);
 }
 
-void loop() {
+void winecooler::loop() {
   int pin = -1;
 
   // 1 degree per loop
@@ -50,20 +48,19 @@ void loop() {
 //
 //  Temperature control
 //
-
-int setTemperature(String command) {
-  return setNewTemperature(command.toInt());
+int winecooler::setTemperature(String command) {
+  return instance->setNewTemperature(command.toInt());
 }
 
-int pressUp(String command) {
-  return setNewTemperature(currentTemperature + 1);
+int winecooler::pressUp(String command) {
+  return instance->setNewTemperature(instance->currentTemperature + 1);
 }
 
-int pressDown(String command) {
-  return setNewTemperature(currentTemperature - 1);
+int winecooler::pressDown(String command) {
+  return instance->setNewTemperature(instance->currentTemperature - 1);
 }
 
-int setNewTemperature(int newTemp)
+int winecooler::setNewTemperature(int newTemp)
 {
   if(newTemp >= minTemperatur && newTemp <= maxTemperatur) {
     newTemperature = newTemp;
@@ -74,16 +71,15 @@ int setNewTemperature(int newTemp)
 //
 //  Control watch
 //
-
-void upPressed() {
-    handlePressed(1);
+void winecooler::upPressed() {
+    instance->handlePressed(1);
 }
 
-void downPressed() {
-    handlePressed(-1);
+void winecooler::downPressed() {
+    instance->handlePressed(-1);
 }
 
-void handlePressed(int tempDelta)
+void winecooler::handlePressed(int tempDelta)
 {
   if(millis()-lastPress < 1000) {
       bool isManualPress = currentTemperature == newTemperature;
