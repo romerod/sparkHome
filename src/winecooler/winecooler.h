@@ -13,6 +13,7 @@ class winecooler {
     static int pressUp(String command);
     static int pressDown(String command);
     static int setTemperature(String command);
+		static int power(String command);
     static int setNewTemperature(int newTemp);
 
     static void upPressed();

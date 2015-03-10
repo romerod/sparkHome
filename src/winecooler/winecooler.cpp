@@ -3,6 +3,7 @@
 
 #define up D1
 #define down D0
+#define pwr D2
 #define interruptUp A0
 #define interruptDown A1
 #define maxTemperatur 18
@@ -13,15 +14,21 @@ int winecooler::newTemperature;
 unsigned long winecooler::lastPress;
 
 void winecooler::setup() {
-    currentTemperature = 16;
+    currentTemperature = 12;
     newTemperature = 16;
+
     Spark.variable("currentTemp", &currentTemperature, INT);
     Spark.function("pressUp", winecooler::pressUp);
     Spark.function("pressDown", winecooler::pressDown);
     Spark.function("setTemp", winecooler::setTemperature);
+    Spark.function("wc-power", winecooler::power);
 
     pinMode(up, OUTPUT);
     pinMode(down, OUTPUT);
+    pinMode(pwr, OUTPUT);
+
+    digitalWrite(pwr, HIGH);
+    delay(500);
 
     attachInterrupt(interruptUp, winecooler::upPressed, RISING);
     attachInterrupt(interruptDown, winecooler::downPressed, RISING);
@@ -43,6 +50,21 @@ void winecooler::loop() {
     delay(200);
     digitalWrite(pin, LOW);
     delay(250);
+  }
+}
+
+//
+//  Power control
+//
+int winecooler::power(String command) {
+  if(command.equalsIgnoreCase("on")) {
+      digitalWrite(pwr, HIGH);
+      int lastTemp = currentTemperature;
+      delay(1000);
+      currentTemperature = 12;
+      newTemperature = lastTemp;
+  } else if (command.equalsIgnoreCase("off")) {
+      digitalWrite(pwr, LOW);
   }
 }
 
