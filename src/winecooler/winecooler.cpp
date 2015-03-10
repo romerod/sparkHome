@@ -17,6 +17,8 @@ void winecooler::setup() {
     currentTemperature = 12;
     newTemperature = 16;
 
+    Serial.begin(9600);
+
     Spark.variable("currentTemp", &currentTemperature, INT);
     Spark.function("pressUp", winecooler::pressUp);
     Spark.function("pressDown", winecooler::pressDown);
@@ -26,6 +28,8 @@ void winecooler::setup() {
     pinMode(up, OUTPUT);
     pinMode(down, OUTPUT);
     pinMode(pwr, OUTPUT);
+
+    Serial.println("winecooler: on");
 
     digitalWrite(pwr, HIGH);
     delay(500);
@@ -39,8 +43,10 @@ void winecooler::loop() {
 
   // 1 degree per loop
   if(currentTemperature > newTemperature) {
+    Serial.println("down");
     pin = down;
   } else if (currentTemperature < newTemperature) {
+    Serial.println("up");
     pin = up;
   }
 
@@ -58,13 +64,15 @@ void winecooler::loop() {
 //
 int winecooler::power(String command) {
   if(command.equalsIgnoreCase("on")) {
-      digitalWrite(pwr, HIGH);
-      int lastTemp = currentTemperature;
-      delay(1000);
-      currentTemperature = 12;
-      newTemperature = lastTemp;
+    Serial.println("winecooler: on");
+    digitalWrite(pwr, HIGH);
+    int lastTemp = currentTemperature;
+    delay(1000);
+    currentTemperature = 12;
+    newTemperature = lastTemp;
   } else if (command.equalsIgnoreCase("off")) {
-      digitalWrite(pwr, LOW);
+    Serial.println("winecooler: off");
+    digitalWrite(pwr, LOW);
   }
 }
 
@@ -95,11 +103,13 @@ int winecooler::setNewTemperature(int newTemp)
 //  Control watch
 //
 void winecooler::upPressed() {
-    handlePressed(1);
+  Serial.println("winecooler: user pressed up");
+  handlePressed(1);
 }
 
 void winecooler::downPressed() {
-    handlePressed(-1);
+  Serial.println("winecooler: user pressed down");
+  handlePressed(-1);
 }
 
 void winecooler::handlePressed(int tempDelta)
@@ -112,7 +122,12 @@ void winecooler::handlePressed(int tempDelta)
         Spark.publish("winecooler-settings-temp", String(currentTemperature, DEC));
         if(isManualPress)
         {
+          Serial.print("winecooler: user selected ");
+          Serial.println(currentTemperature);
           newTemperature = currentTemperature;
+        } else {
+          Serial.print("winecooler: currentTemperature");
+          Serial.println(currentTemperature);
         }
       }
   }
