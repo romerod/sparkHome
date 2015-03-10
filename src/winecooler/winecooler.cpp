@@ -4,7 +4,7 @@
 #define up D1
 #define down D0
 #define pwr D2
-#define interruptUp A0
+#define interruptUp A2
 #define interruptDown A1
 #define maxTemperatur 18
 #define minTemperatur 11
