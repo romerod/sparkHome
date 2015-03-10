@@ -4,13 +4,14 @@
 #define up D1
 #define down D0
 #define pwr D2
-#define interruptUp A2
-#define interruptDown A1
+#define interruptUp A1
+#define interruptDown A2
 #define maxTemperatur 18
 #define minTemperatur 11
 
 int winecooler::currentTemperature;
 int winecooler::newTemperature;
+int winecooler::lastPublishedTemperature;
 unsigned long winecooler::lastPress;
 
 void winecooler::setup() {
@@ -40,6 +41,11 @@ void winecooler::setup() {
 
 void winecooler::loop() {
   int pin = -1;
+
+  if(lastPublishedTemperature != currentTemperature) {
+      Spark.publish("winecooler-settings-temp", String(currentTemperature, DEC));
+      lastPublishedTemperature = currentTemperature;
+  }
 
   // 1 degree per loop
   if(currentTemperature > newTemperature) {
@@ -119,7 +125,7 @@ void winecooler::handlePressed(int tempDelta)
       int currentTemp = currentTemperature + tempDelta;
       if(currentTemp >= minTemperatur && currentTemp <= maxTemperatur) {
         currentTemperature = currentTemp;
-        Spark.publish("winecooler-settings-temp", String(currentTemperature, DEC));
+
         if(isManualPress)
         {
           Serial.print("winecooler: user selected ");

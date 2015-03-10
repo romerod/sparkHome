@@ -8,6 +8,7 @@ class winecooler {
   private:
 		static int currentTemperature;
     static int newTemperature;
+		static int lastPublishedTemperature;
     static unsigned long lastPress;
 
     static int pressUp(String command);
