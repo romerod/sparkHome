@@ -1,12 +1,10 @@
 #include "application.h"
 #include "winecooler.h"
 
-winecooler _winecooler;
-
 void setup() {
-  _winecooler.setup();
+  winecooler::setup();
 }
 
 void loop() {
-  _winecooler.loop();
+  winecooler::loop();
 }

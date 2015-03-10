@@ -3,22 +3,21 @@
 
 class winecooler {
 	public:
-    void setup();
-    void loop();
+    static void setup();
+    static void loop();
   private:
-		static winecooler* instance;
-    int currentTemperature;
-    int newTemperature;
-    unsigned long lastPress;
+		static int currentTemperature;
+    static int newTemperature;
+    static unsigned long lastPress;
 
     static int pressUp(String command);
     static int pressDown(String command);
     static int setTemperature(String command);
-    int setNewTemperature(int newTemp);
+    static int setNewTemperature(int newTemp);
 
     static void upPressed();
     static void downPressed();
-    void handlePressed(int tempDelta);
+    static void handlePressed(int tempDelta);
 };
 
 #endif

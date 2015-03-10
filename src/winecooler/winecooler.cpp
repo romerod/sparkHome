@@ -8,13 +8,14 @@
 #define maxTemperatur 18
 #define minTemperatur 11
 
-winecooler* winecooler::instance;
+int winecooler::currentTemperature;
+int winecooler::newTemperature;
+unsigned long winecooler::lastPress;
 
 void winecooler::setup() {
-    instance = this;
     currentTemperature = 16;
     newTemperature = 16;
-    Spark.variable("currentTemperature", &currentTemperature, INT);
+    Spark.variable("currentTemp", &currentTemperature, INT);
     Spark.function("pressUp", winecooler::pressUp);
     Spark.function("pressDown", winecooler::pressDown);
     Spark.function("setTemp", winecooler::setTemperature);
@@ -49,15 +50,15 @@ void winecooler::loop() {
 //  Temperature control
 //
 int winecooler::setTemperature(String command) {
-  return instance->setNewTemperature(command.toInt());
+  return setNewTemperature(command.toInt());
 }
 
 int winecooler::pressUp(String command) {
-  return instance->setNewTemperature(instance->currentTemperature + 1);
+  return setNewTemperature(currentTemperature + 1);
 }
 
 int winecooler::pressDown(String command) {
-  return instance->setNewTemperature(instance->currentTemperature - 1);
+  return setNewTemperature(currentTemperature - 1);
 }
 
 int winecooler::setNewTemperature(int newTemp)
@@ -72,11 +73,11 @@ int winecooler::setNewTemperature(int newTemp)
 //  Control watch
 //
 void winecooler::upPressed() {
-    instance->handlePressed(1);
+    handlePressed(1);
 }
 
 void winecooler::downPressed() {
-    instance->handlePressed(-1);
+    handlePressed(-1);
 }
 
 void winecooler::handlePressed(int tempDelta)
